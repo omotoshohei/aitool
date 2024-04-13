@@ -4,18 +4,17 @@ import streamlit as st
 st.set_page_config(page_title="AI Text Assistant", page_icon=":memo:")
 
 # Welcome Message
-st.title("Welcome to AI Text Assistant")
-st.subheader("Your go-to solution for AI-powered text processing and language services.")
+st.title("Less Prompt")
+st.subheader("Minimal Input, Maximum Output")
 
 # Feature Overview
 st.markdown("""
 ## Features
-Explore the range of services our app offers:
-- **Article Generator**: Generate insightful articles on a variety of topics.
-- **Code Debug**: Analyze and debug your code efficiently.
-- **Correction**: Enhance your text with our advanced correction tool.
-- **Translation**: Translate your content into multiple languages.
-- **Summarization**: Condense long texts into concise, informative summaries.
+At Less Prompt, we believe in simplicity. Our cutting-edge AI understands your needs with just a few words, turning brief interactions into comprehensive results.
+- **Variety of templates**: Choose the template that best fits your needs.
+- **Optimized Prompts**: Each template comes with the most effective prompt already installed.
+- **Customizable**: Enhance your text with our advanced correction tools.
+- **Password Protection**: Users must enter a password to access the tool, protecting against unauthorized use and ensuring charges are made only to intended users.
 """)
 
 # Feature Navigation
@@ -50,6 +49,15 @@ if st.session_state['authenticated']:
 # else:
 #     # If not authenticated, show a warning
 #     st.warning('Please enter your password and click login to continue.')
-
-
+# Feature Overview
+st.markdown("""
+## Developper
+- [Shohei Omoto](https://heysho.com)
+- SEO, Data, Digital Marketing Specialist based in Tokyo, Japan.
+""")
+st.markdown("""
+## Please Note
+- For inquiries on using this template, please reach out to [Shohei Omoto](https://heysho.com).
+- Please note that unauthorized reproduction or use is prohibited.
+""")
 
