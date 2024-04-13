@@ -1,14 +1,14 @@
 import streamlit as st
 import openai
 
-ai_model = "gpt-4-0125-preview"
+ai_model = "gpt-4-turbo"
 token = 4096
 
 # Set the page title and favicon
-st.set_page_config(page_title="Text Correction", page_icon=":bar_chart:")
+st.set_page_config(page_title="Translation", page_icon=":bar_chart:")
 
 openai.api_key = st.secrets['OPENAI_API_KEY']
-st.title('Sentence Correction')
+st.title('Code Debug')
 
 
 # Initialize the session state for 'authenticated' key
@@ -45,49 +45,33 @@ if st.session_state['authenticated']:
     if st.session_state['usage_count'] < max_uses:
         # Main Contents Start from here -------------------------------
 
-        st.subheader('English')
-        en_input = st.text_area("Enter your English text here:", key="en_input")
-        if st.button("Correct", key="en_correction"):
+        st.subheader('Your Code')
+        yourcode_input = st.text_area("Enter your code here:", key="yourcode_input")
+        st.subheader('Error Message')
+        errormessage_input = st.text_area("Enter the error message here:", key="errormessage_input")
+
+
+
+
+        if st.button("Generate the code", key="ja_translate"):
             # Create a prompt based on the user input
-            en_prompt = f"Correct the following English sentence. Here is the text: {en_input}"
+            prompt = f"""Review my code and the error message, and give me the fixed version of the code:
+            Here is my code:
+            ***
+            {yourcode_input}***
+            here is the error message:
+            ***
+            {errormessage_input}***
+            """
             # Make a request to the API to generate text
-            en_response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",  # Use the engine of your choice
-                messages=[{"role": "user", "content": en_prompt}],
-                max_tokens=60
+            response = openai.ChatCompletion.create(
+                model=ai_model,  # Use the engine of your choice
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=token
             )
-            st.write(en_response["choices"][0]["message"]["content"])
-
-        st.text(" ")
-        st.text(" ")
-
-
-        st.subheader('Japanese')
-        ja_input = st.text_area("Enter your Japanese text here:", key="ja_input")
-        if st.button("Correct", key="ja_correction"):
-            # Create a prompt based on the user input
-            ja_prompt = f"Correct the following English sentence. Here is the text: {ja_input}"
-            # Make a request to the API to generate text
-            ja_response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",  # Use the engine of your choice
-                messages=[{"role": "user", "content": ja_prompt}],
-                max_tokens=60
-            )
-            st.write(ja_response["choices"][0]["message"]["content"])
+            st.write(response["choices"][0]["message"]["content"])
     else:
         st.error("You have reached your maximum usage limit.")
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

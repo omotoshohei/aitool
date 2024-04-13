@@ -1,7 +1,7 @@
 import streamlit as st
 import openai
 
-ai_model = "gpt-4-0125-preview"
+ai_model = "gpt-4-turbo"
 token = 4096
 
 # Set the page title and favicon

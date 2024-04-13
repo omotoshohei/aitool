@@ -1,7 +1,7 @@
 import streamlit as st
 import openai
 
-ai_model = "gpt-4-0125-preview"
+ai_model = "gpt-4-turbo"
 token = 4096
 
 # Set the page title and favicon
@@ -48,15 +48,32 @@ if st.session_state['authenticated']:
         # Main Contents Start from here -------------------------------
 
         st.subheader('English')
-        en_input_topic = st.selectbox("Pick your situation",("I want to be more motivated", "I'm feeling depressed", "I'm upset and want to controll my emotion"),index=None,placeholder="Select contact method...", key="en_input_topic")
-        # en_input_occupation = st.text_input("Your Occupation(e.g. Data Scientist)", key="en_input_occupation")
-        # en_input_situation = st.text_input("Your Situation (e.g. Looking for a job)", key="en_input_situation")
+        en_input_topic = st.selectbox(
+            "How are you feeling today?",
+            ("I want to be more motivated", "I'm feeling sad", "I'm angry", "I just want to relax today"),
+            index=0,  # Setting a default index if desired, or use None for no default selection
+            key="en_input_topic"
+        )
+
+        en_input_reason = st.text_input(
+            "What's the reason for this feeling? (e.g., 'I lost my motivation')", 
+            key="en_input_reason"
+        )
+
+        en_input_plan = st.text_input(
+            "What's your plan for today? (e.g., 'I'm going to meet my friends.')",
+            key="en_input_plan"
+        )
 
         if st.button("Generate a daily reminder", key="en_generate_quote"):
             # Create a prompt based on the user input
             en_prompt = f"""
-            - Task： Pick a quotes and describe the meaning within 100 words.
-            - Situation：{en_input_topic}。
+            - Task: Select a unique quote each time and explain its relevance to the situation described. 
+                Avoid repeating quotes and do not use quotes by Steve Jobs.
+            - Feeling: {en_input_topic}.
+            - Reason for the feeling: {en_input_reason}.
+            - Plan for the day: {en_input_plan}.
+            - Guidelines: Aim for quotes that are less commonly cited or consider a variety of cultural or historical sources to enhance diversity in selections.
             """
             # Make a request to the API to generate text
             en_response = openai.ChatCompletion.create(
@@ -70,17 +87,33 @@ if st.session_state['authenticated']:
         st.text(" ")
 
 
-        st.subheader('Japanese')
-        ja_input_topic = st.selectbox("Pick your situation",("I want to be more motivated", "I'm feeling depressed", "I'm upset and want to controll my emotion"),index=None,placeholder="Select contact method...", key="ja_input_topic")
-        # en_input_occupation = st.text_input("Your Occupation(e.g. Data Scientist)", key="en_input_occupation")
-        # en_input_situation = st.text_input("Your Situation (e.g. Looking for a job)", key="en_input_situation")
+        st.subheader('日本語')
+        ja_input_topic = st.selectbox(
+            "今日の気分を教えてください?",
+            ("モチベーションを上げたい", "悲しい", "怒っている", "今はリラックスしたい"),
+            index=0,  # Setting a default index if desired, or use None for no default selection
+            key="ja_input_topic"
+        )
 
-        if st.button("Generate a daily reminder", key="ja_generate_quote"):
+        ja_input_reason = st.text_input(
+            "その理由は何ですか？（例：「モチベーションが上がらない」）", 
+            key="ja_input_reason"
+        )
+
+        ja_input_plan = st.text_input(
+            "今日の予定は何ですか？（例：「友達と会う予定です」）",
+            key="ja_input_plan"
+        )
+
+        if st.button("今日の名言を生成する", key="ja_generate_quote"):
             # Create a prompt based on the user input
             ja_prompt = f"""
-            - Task： Pick a quotes and describe the meaning within 100 words.
-            - Language: Japanese
-            - Situation：{ja_input_topic}。
+            - Task: Select a unique quote each time and explain its relevance to the situation described in Japanese language. 
+                Avoid repeating quotes and do not use quotes by Steve Jobs.
+            - Feeling: {ja_input_topic}.
+            - Reason for the feeling: {ja_input_reason}.
+            - Plan for the day: {ja_input_plan}.
+            - Guidelines: Aim for quotes that are less commonly cited or consider a variety of cultural or historical sources to enhance diversity in selections.
             """
             # Make a request to the API to generate text
             ja_response = openai.ChatCompletion.create(

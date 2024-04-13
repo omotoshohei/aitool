@@ -1,14 +1,15 @@
 import streamlit as st
 import openai
 
-ai_model = "gpt-4-0125-preview"
+ai_model = "gpt-4-turbo"
 token = 4096
 
 # Set the page title and favicon
-st.set_page_config(page_title="Article Generator", page_icon=":bar_chart:")
+st.set_page_config(page_title="Text Correction", page_icon=":bar_chart:")
 
 openai.api_key = st.secrets['OPENAI_API_KEY']
-st.title('Article Outline Generator')
+st.title('Sentence Correction')
+
 
 # Initialize the session state for 'authenticated' key
 if 'authenticated' not in st.session_state:
@@ -45,20 +46,15 @@ if st.session_state['authenticated']:
         # Main Contents Start from here -------------------------------
 
         st.subheader('English')
-        en_input = st.text_input("Enter the topic here in English:(e.g. generative ai, etc)", key="en_input")
-        if st.button("Generate the outline", key="en_generate_article"):
+        en_input = st.text_area("Enter your English text here:", key="en_input")
+        if st.button("Correct", key="en_correction"):
             # Create a prompt based on the user input
-            en_prompt = f"""
-            Generate the outline of the blog article with the following topic. 
-            The language is in English. 
-            The max-token is {token}, so complete the sentence within the token.
-            Here is the topic: {en_input}
-            """
+            en_prompt = f"Correct the following English sentence. Here is the text: {en_input}"
             # Make a request to the API to generate text
             en_response = openai.ChatCompletion.create(
-                model=ai_model,  # Use the engine of your choice
+                model="gpt-3.5-turbo",  # Use the engine of your choice
                 messages=[{"role": "user", "content": en_prompt}],
-                max_tokens= token
+                max_tokens=60
             )
             st.write(en_response["choices"][0]["message"]["content"])
 
@@ -67,24 +63,36 @@ if st.session_state['authenticated']:
 
 
         st.subheader('Japanese')
-        ja_input = st.text_input("Enter the topic here in English:(e.g. 生成AI, etc)", key="ja_input")
-        if st.button("Generate the outline", key="ja_generate_article"):
+        ja_input = st.text_area("Enter your Japanese text here:", key="ja_input")
+        if st.button("Correct", key="ja_correction"):
             # Create a prompt based on the user input
-            ja_prompt = f"""
-            Generate the outline of the with the following topic. 
-            The language is in Japanese. 
-            The max-token is {token}, so complete the sentence within the token.
-            Here is the topic: {ja_input}
-            """
+            ja_prompt = f"Correct the following English sentence. Here is the text: {ja_input}"
             # Make a request to the API to generate text
             ja_response = openai.ChatCompletion.create(
-                model=ai_model,  # Use the engine of your choice
+                model="gpt-3.5-turbo",  # Use the engine of your choice
                 messages=[{"role": "user", "content": ja_prompt}],
-                max_tokens=token
+                max_tokens=60
             )
             st.write(ja_response["choices"][0]["message"]["content"])
     else:
         st.error("You have reached your maximum usage limit.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

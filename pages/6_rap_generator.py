@@ -1,14 +1,14 @@
 import streamlit as st
 import openai
 
-ai_model = "gpt-4-0125-preview"
+ai_model = "gpt-4-turbo"
 token = 4096
 
 # Set the page title and favicon
-st.set_page_config(page_title="Anger Management", page_icon=":bar_chart:")
+st.set_page_config(page_title="Rap Generator", page_icon=":bar_chart:")
 
 openai.api_key = st.secrets['OPENAI_API_KEY']
-st.title('Anger Management')
+st.title('Rap Generator')
 
 
 
@@ -48,16 +48,18 @@ if st.session_state['authenticated']:
         # Main Contents Start from here -------------------------------
 
         st.subheader('English')
-        en_input_who = st.selectbox("Who are you angry at?",("Your boss", "Your co-worker", "Your partner", "Your family or relatives", "Your friend"),index=None,placeholder="Select contact method...", key="en_input_who")
-        en_input_level = st.selectbox("Your anger level",("1", "2", "3", "4", "5"),index=None,placeholder="How much are you angry out of 5?", key="en_input_level")
-        en_input_situation = st.text_input("Explain the situation (e.g. My boss gives me too much work to handle.)", key="en_input_situation")
+        en_input_topic = st.text_input("Topic（e.g. Sunday）", key="en_input_topic")
+        en_input_occupation = st.text_input("Your Occupation(e.g. Data Scientist)", key="en_input_occupation")
+        en_input_message = st.text_input("What do you want to say? (e.g. prepare for tomorrow)", key="en_input_message")
 
-        if st.button("Get an advice", key="en_generate_adivce"):
+        if st.button("Generate a rap", key="en_generate_rap"):
             # Create a prompt based on the user input
             en_prompt = f"""
-            - Task： you are a psychological counselor. Please give an advice for this situation.
-            - Situation：{en_input_who}.
-            - Anger level:{en_input_level}
+            - Task： Generate a rap in English
+            - Length： a rap with 8 lines, each line having 8 beats.
+            - Topic：{en_input_topic}。
+            - Occupation： {en_input_occupation}。
+            - What you want to say： {en_input_message}。
             """
             # Make a request to the API to generate text
             en_response = openai.ChatCompletion.create(
@@ -71,17 +73,19 @@ if st.session_state['authenticated']:
         st.text(" ")
 
 
-        st.subheader('Japanese')
-        ja_input_who = st.selectbox("Who are you angry at?",("Your boss", "Your co-worker", "Your partner", "Your family or relatives", "Your friend"),index=None,placeholder="Select contact method...", key="ja_input_who")
-        ja_input_level = st.selectbox("Your anger level",("1", "2", "3", "4", "5"),index=None,placeholder="How much are you angry out of 5?", key="ja_input_level")
-        ja_input_situation = st.text_input("Explain the situation (e.g. My boss gives me too much work to handle.)", key="ja_input_situation")
+        st.subheader('日本語')
+        ja_input_topic = st.text_input("トピック（例：日曜日）", key="ja_input_topic")
+        ja_input_occupation = st.text_input("あなたの仕事（例：データサイエンティスト）", key="ja_input_occupation")
+        ja_input_message = st.text_input("言いたいこと（例：明日に向けて気持ちを準備したい）", key="ja_input_message")
 
-        if st.button("Get an advice", key="ja_generate_adivce"):
+        if st.button("Generate a rap", key="ja_generate_rap"):
             # Create a prompt based on the user input
             ja_prompt = f"""
-            - Task： you are a psychological counselor. Please give an advice for this situation in Japanese
-            - Situation：{ja_input_who}.
-            - Anger level:{ja_input_level}
+            - Task： Generate a rap in Japanese
+            - Length： a rap with 8 lines, each line having 8 beats.
+            - Topic：{ja_input_topic}。
+            - Occupation： {ja_input_occupation}。
+            - What you want to say： {ja_input_message}。
             """
             # Make a request to the API to generate text
             ja_response = openai.ChatCompletion.create(
