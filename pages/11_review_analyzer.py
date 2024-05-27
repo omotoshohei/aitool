@@ -2,14 +2,14 @@ import streamlit as st
 import openai
 
 # Streamlit page configuration
-st.set_page_config(page_title="Anger Management Tool", page_icon=":bar_chart:")
+st.set_page_config(page_title="Review Analyzer", page_icon=":bar_chart:")
 
 # Load secrets
 openai.api_key = st.secrets['OPENAI_API_KEY']
-prompt = st.secrets['PROMPT_ANGER_MANAGEMENT']
+prompt = st.secrets['PROMPT_REVIEW_ANALYZER']
 
 # Title of the page
-st.title('Anger Management Tool')
+st.title('Product Review Analyzer')
 
 # Style adjustments (optional, remove if not needed)
 st.markdown(
@@ -17,9 +17,9 @@ st.markdown(
 <style>
 /* Custom style adjustments */
 .st-emotion-cache-iiif1v { display: none !important; }
-.st-emotion-cache-13ln4jf {padding: 6rem 1rem 0rem;}
+.st-emotion-cache-gh2jqd {padding: 6rem 1rem 0rem;}
 @media (max-width: 50.5rem) {
-		.st-emotion-cache-13ln4jf {
+		.st-emotion-cache-gh2jqd {
 			max-width: calc(0rem + 100vw);
 		}
 	}
@@ -37,14 +37,14 @@ if 'language' not in st.session_state:
 max_uses = 3
 
 # Define a function to handle API requests and increase modularity
-def generate_from_ai(input_who, input_anger_level, input_situation, language):
+def analyze_review(input_brand, input_product, input_region, language):
     st.session_state['usage_count'] += 1
     with st.spinner('Loading... Please wait.'):
-        user_prompt = f"- Task: {prompt} - Output language: {language}. - Who are you angry at?: {input_who}. - Your anger level(out of 5): {input_anger_level}. - Situation: {input_situation}. - Explain within 180 words in English, or 600 charactors in Japanese."
+        user_prompt = f"- Task: {prompt} - Output language: {language}. - Brand: {input_brand}. - Product: {input_product}. - Region: {input_region}. - Explain within 180 words in English, or 600 charactors in Japanese.- Display with only single language. Don't mix Japanese and English."
         response = openai.ChatCompletion.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": user_prompt}],
-            max_tokens=1500
+            max_tokens=4096
         )
         return response["choices"][0]["message"]["content"]
 
@@ -69,25 +69,24 @@ if st.session_state['usage_count'] < max_uses:
         # English Input Section
         with st.form(key='en_form'):
             st.subheader('English')
-            en_input_who = st.selectbox("Who are you angry at?", ("Your boss", "Your co-worker", "Your family or relatives", "Your friend"), key="en_input_who")
-            en_input_anger_level = st.selectbox("Your anger level", ("1", "2", "3", "4", "5"), key="en_anger_level")
-            en_input_situation = st.text_input("Explain the situation (e.g., My boss gives me too much work to handle.)", key="en_input_situation")
-            submit_en = st.form_submit_button("Generate a Suggestion")
-
+            en_input_brand = st.text_input("Enter the brand name (e.g., Nike)", key="en_input_brand")
+            en_input_product = st.text_input("Enter the product name (e.g., Air Force One shoes)", key="en_input_product")
+            en_input_region = st.text_input("Enter your region (e.g., USA)", key="en_input_region", value="USA")
+            submit_en = st.form_submit_button("Analyze the review")
             if submit_en:
-                result = generate_from_ai(en_input_who, en_input_anger_level, en_input_situation, "English")
+                result = analyze_review(en_input_brand, en_input_product, en_input_region, "English")
                 st.write(result)
     else:
         # Japanese Input Section
         with st.form(key='ja_form'):
             st.subheader('日本語')
-            ja_input_who = st.selectbox("誰に怒っていますか?", ("上司", "同僚", "パートナー", "家族、または親戚", "友達"), key="ja_input_who")
-            ja_input_anger_level = st.selectbox("怒りのレベル", ("1", "2", "3", "4", "5"), key="ja_anger_level")
-            ja_input_situation = st.text_input("状況を説明ください (例：上司が多すぎる仕事を依頼してきた。)", key="ja_input_situation")
-            submit_ja = st.form_submit_button("提案を生成")
-
+            ja_input_brand = st.text_input("ブランド名を入力ください（例：Nike）", key="ja_input_brand")
+            ja_input_product = st.text_input("商品名を入力ください (例：エアフォースワンの靴)", key="ja_input_product")
+            ja_input_region = st.text_input("集めるレビューの国を指定ください (例：日本)", key="ja_input_region", value="日本")
+            submit_ja = st.form_submit_button("レビューを分析する")
             if submit_ja:
-                result = generate_from_ai(ja_input_who, ja_input_anger_level, ja_input_situation, "Japanese")
+                result = analyze_review(ja_input_brand, ja_input_product, ja_input_region, "Japanese")
                 st.write(result)
 else:
     st.error("You have reached your maximum usage limit.")
+

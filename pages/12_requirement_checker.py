@@ -7,14 +7,14 @@ TOKEN_COUNT = 4096
 MAX_USES = 3
 
 # Set page configuration
-st.set_page_config(page_title="Code Debugging Tool", page_icon=":bar_chart:")
+st.set_page_config(page_title="Requirements Checker", page_icon=":bar_chart:")
 
 # Load API key and prompt from secrets
 openai.api_key = st.secrets['OPENAI_API_KEY']
-# prompt_template = st.secrets['PROMPT_DEBUG']
+prompt_template = st.secrets['PROMPT_REQUIREMENT']
 
 # Page title
-st.title('Code Debugging Tool')
+st.title('Requirements Checker')
 
 # Styling (optional)
 st.markdown(
@@ -39,15 +39,15 @@ if 'usage_count' not in st.session_state:
 if 'language' not in st.session_state:
     st.session_state['language'] = 'English'
 
-def generate_from_ai(language, input_task, input_code, input_error):
+def generate_requirements(language, instruction, background):
     """Generates requirements based on the given instructions and background context."""
     if st.session_state['usage_count'] < MAX_USES:
         st.session_state['usage_count'] += 1  # Increment the usage counter
         task_prompt = f"""
+        - Task: {prompt_template}
         - Output language: {language}
-        - Task: {input_task}
-        - Current Code: {input_code}
-        - Error Message: {input_error}
+        - Instruction from your client: {instruction}
+        - Background: {background}
         """
         with st.spinner('Defining requirements...'):
             response = openai.ChatCompletion.create(
@@ -77,39 +77,30 @@ if st.button(switch_button_text):
 # Display form based on selected language
 if st.session_state['language'] == 'English':
     st.subheader('English')
-    en_input_task = st.text_input(
-        "Enter the Task / What do you want to do with your code? (e.g., Review my code below and correct the mistakes)",
-        value="Review my code below and correct the mistakes",
-        key="en_input_task"
+    en_input_instruction = st.text_input(
+        "Enter the instruction from your boss or client (e.g., Let's actively push this new product into the market. Everyone, let's brainstorm ideas.)",
+        key="en_input_instruction"
     )
-    en_input_code = st.text_area(
-        "Paste your code here",
-        key="en_input_code"
+    en_input_background = st.text_input(
+        "Background (e.g., Since the company is struggling with sales, we want to start selling a new product.)",
+        key="en_input_background"
     )
-    en_input_error = st.text_area(
-        "Paste the error message here",
-        key="en_input_error"
-    )
-    if st.button("Debug", key="en_fixed_code"):
-        result = generate_from_ai("English", en_input_task, en_input_code, en_input_error)
+    if st.button("Define the requirements", key="en_define"):
+        result = generate_requirements("English", en_input_instruction, en_input_background)
         if result:
             st.write(result)
 else:
     st.subheader('日本語')
-    ja_input_task = st.text_input(
-        "タスクの内容、またはしたいことを入力ください。 (例：下記のコードをレビューして修正ください。)",
-        value="下記のコードをレビューして修正ください",
-        key="ja_input_task"
+    ja_input_instruction = st.text_input(
+        "クライアントからの指示を入力ください (例：「この新商品、市場にどんどん押し出していこう。みんなでアイディア出して。」)",
+        key="ja_input_instruction"
     )
-    ja_input_code = st.text_area(
-        "現在のコードを入力ください",
-        key="ja_input_code"
+    ja_input_background = st.text_input(
+        "背景を入力ください (例：「会社が売り上げに伸び悩んでいるから、新しい商品を売っていきたい。」)",
+        key="ja_input_background"
     )
-    ja_input_error = st.text_area(
-        "エラーメッセージを入力ください",
-        key="ja_input_error"
-    )
-    if st.button("デバッグする", key="ja_fixed_code"):
-        result = generate_from_ai("Japanese", ja_input_task, ja_input_code, ja_input_error)
+    if st.button("要件定義をする", key="ja_define"):
+        result = generate_requirements("Japanese", ja_input_instruction, ja_input_background)
         if result:
             st.write(result)
+

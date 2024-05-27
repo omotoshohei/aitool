@@ -1,103 +1,86 @@
 import streamlit as st
 import openai
 
-ai_model = "gpt-4-turbo"
-token = 4096
+# Constants and configurations
+AI_MODEL = "gpt-4o"
+TOKEN_COUNT = 4096
+MAX_USES = 3
 
 # Set the page title and favicon
 st.set_page_config(page_title="Text Correction", page_icon=":bar_chart:")
 
+# Load the API key
 openai.api_key = st.secrets['OPENAI_API_KEY']
+
+# Page title
 st.title('Sentence Correction')
 
+# Style adjustments (optional, remove if not needed)
+st.markdown(
+"""
+<style>
+/* Custom style adjustments */
+.st-emotion-cache-iiif1v { display: none !important; }
+.st-emotion-cache-gh2jqd {padding: 6rem 1rem 0rem;}
+@media (max-width: 50.5rem) {
+        .st-emotion-cache-gh2jqd {
+            max-width: calc(0rem + 100vw);
+        }
+    }
+</style>
+""",
+    unsafe_allow_html=True,
+)
 
-# Initialize the session state for 'authenticated' key
-if 'authenticated' not in st.session_state:
-    st.session_state['authenticated'] = False
-
+# Initialize usage count and language in session state
 if 'usage_count' not in st.session_state:
-    st.session_state['usage_count'] = 0  # Usage counter
+    st.session_state['usage_count'] = 0
+if 'language' not in st.session_state:
+    st.session_state['language'] = 'English'
 
-password_key = st.secrets['PASSWORD']
-
-# Only show the login form if the user is not authenticated
-if not st.session_state['authenticated']:
-    password_placeholder = st.empty()
-    login_button_placeholder = st.empty()
-
-    password = password_placeholder.text_input("Enter your password", type="password")
-
-    if login_button_placeholder.button('Login'):
-        if password == password_key:
-            st.session_state['authenticated'] = True
-            st.session_state['usage_count'] = 0  # Reset the usage count upon new login
-            password_placeholder.empty()
-            login_button_placeholder.empty()
-            st.success("Login successful!")
-        else:
-            st.error('Wrong password')
-
-# If authenticated, show the main page content
-if st.session_state['authenticated']:
-    # Define a maximum number of uses
-    max_uses = 3
-
-    if st.session_state['usage_count'] < max_uses:
-        # Main Contents Start from here -------------------------------
-
-        st.subheader('English')
-        en_input = st.text_area("Enter your English text here:", key="en_input")
-        if st.button("Correct", key="en_correction"):
-            # Create a prompt based on the user input
-            en_prompt = f"Correct the following English sentence. Here is the text: {en_input}"
-            # Make a request to the API to generate text
-            en_response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",  # Use the engine of your choice
-                messages=[{"role": "user", "content": en_prompt}],
-                max_tokens=60
+def correct_text(language, input_text):
+    """Generate corrected text using OpenAI API based on the input text and language."""
+    if st.session_state['usage_count'] < MAX_USES:
+        st.session_state['usage_count'] += 1
+        prompt = f"Correct the following {language} sentence. The output language should be {language}. Here is the text: {input_text}"
+        with st.spinner('Loading... Please wait.'):
+            response = openai.ChatCompletion.create(
+                model=AI_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=TOKEN_COUNT
             )
-            st.write(en_response["choices"][0]["message"]["content"])
-
-        st.text(" ")
-        st.text(" ")
-
-
-        st.subheader('Japanese')
-        ja_input = st.text_area("Enter your Japanese text here:", key="ja_input")
-        if st.button("Correct", key="ja_correction"):
-            # Create a prompt based on the user input
-            ja_prompt = f"Correct the following English sentence. Here is the text: {ja_input}"
-            # Make a request to the API to generate text
-            ja_response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",  # Use the engine of your choice
-                messages=[{"role": "user", "content": ja_prompt}],
-                max_tokens=60
-            )
-            st.write(ja_response["choices"][0]["message"]["content"])
+        return response["choices"][0]["message"]["content"]
     else:
         st.error("You have reached your maximum usage limit.")
+        return None
 
+# Determine button text based on current language
+if st.session_state['language'] == 'English':
+    switch_button_text = 'Japanese（日本語）'
+else:
+    switch_button_text = 'English'
 
+# Language switcher button
+if st.button(switch_button_text):
+    if st.session_state['language'] == 'English':
+        st.session_state['language'] = 'Japanese'
+    else:
+        st.session_state['language'] = 'English'
+    st.experimental_rerun()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Display form based on selected language
+if st.session_state['language'] == 'English':
+    st.subheader('English')
+    en_input = st.text_area("Enter your English text here:", key="en_input")
+    if st.button("Correct", key="en_correction"):
+        result = correct_text("English", en_input)
+        if result:
+            st.write(result)
+else:
+    st.subheader('日本語')
+    ja_input = st.text_area("日本語を入力ください", key="ja_input")
+    if st.button("校正する", key="ja_correction"):
+        result = correct_text("Japanese", ja_input)
+        if result:
+            st.write(result)
 
